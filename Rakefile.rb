@@ -42,6 +42,16 @@ msbuild :msbuild do |msb|
   msb.targets    :Clean, :Build
 end
 
+desc "run 'Stateless' tests"
+nunit :test => :output do |nunit|
+  tdir = PROJECTS[:s][:test_dir]
+  res = File.join(FOLDERS[:root], FOLDERS[:tests], 'TestResult-results.xml')
+  puts "Tests to: #{res}"
+  
+  nunit.command = COMMANDS[:nunit]
+  nunit.assemblies "#{File.join(FOLDERS[:binaries], tdir, tdir)}.dll"
+  nunit.options "/xml=#{res}"
+end
 
 task :s_output => [:msbuild] do
   target = File.join(FOLDERS[:binaries], PROJECTS[:s][:id])
@@ -49,7 +59,13 @@ task :s_output => [:msbuild] do
   CLEAN.include(target)
 end
 
-task :output => [:s_output]
+task :st_output => [:msbuild] do
+  tdir = PROJECTS[:s][:test_dir]
+  target = File.join(FOLDERS[:binaries], tdir)
+  copy_files File.join(FOLDERS[:src], tdir, 'bin', CONFIGURATION), "*.dll", target
+end
+
+task :output => [:s_output, :st_output]
 task :nuspecs => [:s_nuspec]
 
 desc "Create a nuspec for 'Stateless'"
@@ -91,7 +107,7 @@ nugetpush :s_nuget_push do |nuget|
   nuget.create_only = false
 end
 
-task :default  => ["env:release", "assemblyinfo", "msbuild", "output", "nugets"]
+task :default  => ["env:release", "assemblyinfo", "msbuild", "output", "test", "nugets"]
 
 task :verify do
   changed_files = `git diff --cached --name-only`.split("\n") + `git diff --name-only`.split("\n")

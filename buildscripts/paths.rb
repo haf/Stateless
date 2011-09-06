@@ -36,7 +36,8 @@ FILES = {
 
 COMMANDS = {
   :nuget => File.join(FOLDERS[:tools], "NuGet.exe"),
-  :ilmerge => File.join(FOLDERS[:tools], "ILMerge.exe")
+  :ilmerge => File.join(FOLDERS[:tools], "ILMerge.exe"),
+  :nunit => File.join(FOLDERS[:src], 'packages', 'NUnit.2.5.10.11092', 'tools', 'nunit-console.exe')
   # nunit etc
 }
 
