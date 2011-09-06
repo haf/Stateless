@@ -27,7 +27,7 @@ namespace Stateless.Tests
 		public void It_can_be_cloned()
 		{
 			var clone = _stateMachine.Clone();
-			Assert.That(clone, Is.InstanceOfType(typeof (StateMachine)));
+			Assert.That(clone, Is.InstanceOf<StateMachine>());
 			Assert.That(clone, Is.Not.SameAs(_stateMachine));
 			Assert.That(clone.Id, Is.Not.EqualTo(_stateMachine.Id));
 		}
@@ -88,6 +88,7 @@ namespace Stateless.Tests
 			_stateMachine.Fire(Trigger.X);
 
 			Assert.That(cloneFired, Is.False, "because the callback was registered after the clone was made");
+			Assert.That(parentFired, Is.True);
 		}
 
 		[Test]

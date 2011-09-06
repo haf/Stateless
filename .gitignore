@@ -1,7 +1,9 @@
 bin/
 obj/
-*.ReSharper
-*resharper*
+*.user
+_ReSharper*
+*.resharper
 *.suo
+build/
 .hg/
-.hg
+SharedAssemblyInfo.cs
