@@ -92,3 +92,31 @@ nugetpush :s_nuget_push do |nuget|
 end
 
 task :default  => ["env:release", "assemblyinfo", "msbuild", "output", "nugets"]
+
+task :verify do
+  changed_files = `git diff --cached --name-only`.split("\n") + `git diff --name-only`.split("\n")
+  if !(changed_files == [".semver", "Rakefile.rb"] or changed_files == ["Rakefile.rb"] or changed_files.empty?)
+    raise "Repository contains uncommitted changes; either commit or stash."
+  end
+end
+
+task :versioning do 
+  v = SemVer.find
+  if `git tag`.split("\n").include?("#{v.to_s}")
+    raise "Version #{v.to_s} has already been released! You cannot release it twice."
+  end
+  puts 'committing'
+  `git commit -am "Released version #{v.to_s}"` 
+  puts 'tagging'
+  `git tag #{v.to_s}`
+  puts 'pushing'
+  `git push`
+  `git push --tags`
+  
+  puts "now merge into master and then back into develop!!!"
+end
+
+desc "full chamboom!!!!"
+task :release => [:verify, :default, :versioning, :publish] do
+  puts 'done'
+end
