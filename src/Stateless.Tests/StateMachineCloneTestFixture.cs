@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 
 namespace Stateless.Tests
@@ -110,6 +111,19 @@ namespace Stateless.Tests
 			_stateMachine.Fire(Trigger.Y);
 
 			Assert.That(parentFired, "because this time we fired on the parent");
+		}
+
+		[Test]
+		public void Parent_doesnt_change_state_from_clone()
+		{
+			var c = _stateMachine.Clone();
+
+			c.Fire(Trigger.X);
+			
+			Assert.That(c.PermittedTriggers.Count(), Is.EqualTo(0));
+
+			Assert.That(_stateMachine.PermittedTriggers.Count(), Is.EqualTo(1));
+			Assert.That(_stateMachine.PermittedTriggers.Contains(Trigger.X));
 		}
 	}
 }

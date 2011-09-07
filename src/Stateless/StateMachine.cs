@@ -45,12 +45,14 @@ namespace Stateless
 		private readonly Action<TState> _stateMutator;
 		private Action<TState, TTrigger> _unhandledTriggerAction = DefaultUnhandledTriggerAction;
 
-		private StateMachine(Func<TState> stateAccessor, Action<TState> stateMutator,
+		private StateMachine(Func<TState> stateAccessor,
 		                     IEnumerable<KeyValuePair<TState, StateRepresentation>> stateConfiguration,
 		                     IEnumerable<KeyValuePair<TTrigger, TriggerWithParameters>> triggerConfiguration)
 		{
-			_stateAccessor = Enforce.ArgumentNotNull(stateAccessor, "stateAccessor");
-			_stateMutator = Enforce.ArgumentNotNull(stateMutator, "stateMutator");
+			var existingState = stateAccessor();
+			var reference = new StateReference() {State = existingState};
+			_stateAccessor = () => reference.State;
+			_stateMutator = s => reference.State = s;
 
 			foreach (var stateRepresentation in stateConfiguration)
 				_stateConfiguration.Add(stateRepresentation.Key, stateRepresentation.Value.Clone());
@@ -340,7 +342,7 @@ namespace Stateless
 		/// <exception cref = "NotImplementedException"></exception>
 		public StateMachine<TState, TTrigger> Clone()
 		{
-			return new StateMachine<TState, TTrigger>(_stateAccessor, _stateMutator, _stateConfiguration, _triggerConfiguration);
+			return new StateMachine<TState, TTrigger>(_stateAccessor, _stateConfiguration, _triggerConfiguration);
 		}
 
 		object ICloneable.Clone()
